@@ -6,18 +6,18 @@
 #define DATA_PIN 10
 
 
-struct button1Data{
+struct buttonData{
   int clean = 0; //clean variable add to struct. This is the how clean is it variable. 
   bool buttonPressed = false; //if the button has been pressed. This triggers the timer. Add to Struct.
   int timerCurrent= 0; //The time when the button is Pressed add to struct  
-  bool button1Counter = 0;
+  bool LED1counter = 0;
 };
-int clean = 0; //clean variable add to struct. This is the how clean is it variable. 
-  bool buttonPressed = false; //if the button has been pressed. This triggers the timer. Add to Struct.
-  int timerCurrent= 0; //The time when the button is Pressed add to struct  
-  bool button1Counter = 0;
-//int led1 = 6;
-//int led2 = 5;
+typedef struct buttonData ButtonData;
+ButtonData button1Data;
+//bool buttonPressed = false; //if the button has been pressed. This triggers the timer. Add to Struct.
+ // int timerCurrent= 0; //The time when the button is Pressed add to struct  
+ // bool button1Counter = 0;
+
 int button = 3; //button pin
 
 int button1MemoryAddress = 0; //Where we store the struct
@@ -43,7 +43,7 @@ void setup() {
   lastButtonState = LOW;
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
    // brightness = 50;
-   FastLED.setBrightness(2);
+   FastLED.setBrightness(100);
   checkLEDState();
   //Initialize the RTC
    Wire.begin();
@@ -77,49 +77,49 @@ void loop() {
       lastButtonState = button1Value;
 
         if (buttonState == LOW){
-          clean ++;
+          button1Data.clean++;
           //delay(500);
           
-          if (clean > 2){
-            clean = 0;
+          if ( button1Data.clean > 2){
+             button1Data.clean = 0;
             }
-            Serial.println(clean);
+            Serial.println( button1Data.clean);
             //TODO: Re-Enable EEPROM.
             //EEPROM.update(button1Address, clean);
-            timerCurrent = ((t.min*60)+(t.sec));
-            Serial.println (timerCurrent);
-            buttonPressed = true; 
+            button1Data.timerCurrent = ((t.min*60)+(t.sec));
+            Serial.println (button1Data.timerCurrent);
+            button1Data.buttonPressed = true; 
             timeTriggered = 1;   
           }
       }     
   }
-  if ((currentSeconds >=(timerCurrent+10)) && (buttonPressed == true) && (button1Counter<1)){
+  if ((currentSeconds >=(button1Data.timerCurrent+10)) && (button1Data.buttonPressed == true) && (button1Data.LED1counter<1)){
     
     //timerCurrent = currentSeconds;
     
-        clean++;
+         button1Data.clean++;
         Serial.println("Auto-changing");
-        Serial.println(clean);
-        button1Counter++;
+        Serial.println( button1Data.clean);
+        button1Data.LED1counter++;
       }
-     if ((currentSeconds >=(timerCurrent+20)) && (buttonPressed == true) && (button1Counter<2)){
+     if ((currentSeconds >=(button1Data.timerCurrent+20)) && (button1Data.buttonPressed == true) && (button1Data.LED1counter<2)){
     
-        clean++;
+         button1Data.clean++;
         Serial.println("Auto-changing");
-        Serial.println(clean);
-        button1Counter++;
+        Serial.println( button1Data.clean);
+        button1Data.LED1counter++;
       }
-      if ((currentSeconds >=(timerCurrent+30)) && (buttonPressed == true) && (button1Counter<3)){
+      if ((currentSeconds >=(button1Data.timerCurrent+30)) && (button1Data.buttonPressed == true) && (button1Data.LED1counter<3)){
   
-  //timerCurrent = currentSeconds;
+  //button1Data.timerCurrent = currentSeconds;
   
-      clean = 0;
+       button1Data.clean = 0;
       Serial.println("Auto-changing");
-      Serial.println(clean);
-      button1Counter = 0;
-      buttonPressed = false;
+      Serial.println( button1Data.clean);
+      button1Data.LED1counter = 0;
+      button1Data.buttonPressed = false;
      }
-  switch (clean){
+  switch ( button1Data.clean){
     case 0:
         FastLED.clear();
         leds[0] = CRGB::Green;
@@ -127,7 +127,7 @@ void loop() {
         FastLED.show();
           break;    
     case 1 :
-      //digitalWrite(led1, HIGH);
+      
       FastLED.clear(); 
       leds[0] = CRGB::Red;
       leds[1] = CRGB::Red;
@@ -151,10 +151,10 @@ void loop() {
 
 void checkLEDState(){
   Serial.println("LED status after restart: ");
-  clean = EEPROM.read(button1MemoryAddress);
+   button1Data.clean = EEPROM.read(button1MemoryAddress);
   
   //We should consistently use address 0 as our test address for one-bit opperations).
   Serial.println("The first LED status is " );
-  Serial.println (clean);
+  Serial.println ( button1Data.clean);
   Serial.println(" I think.");
 }
