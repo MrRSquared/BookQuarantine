@@ -4,6 +4,7 @@
 #include <ds3231.h>
 #define NUM_LEDS 2
 #define DATA_PIN 10
+#define brightness 5
 
 
 struct buttonData{
@@ -44,7 +45,7 @@ void setup() {
   lastButtonState = LOW;
   FastLED.addLeds<NEOPIXEL, DATA_PIN>(leds, NUM_LEDS);
    // brightness = 50;
-   FastLED.setBrightness(100);
+   FastLED.setBrightness(brightness);
   checkLEDState();
   //Initialize the RTC
    Wire.begin();
@@ -65,6 +66,7 @@ void loop() {
   if( button1Value != lastButtonState) {
     // reset the debouncing timer
     lastButtonState = button1Value;
+    Serial.println(lastButtonState);
     
     Serial.println(millis()-lastDebounceTime);
   
@@ -88,12 +90,24 @@ void loop() {
             //TODO: Re-Enable EEPROM.
             //EEPROM.update(button1Address, clean);
             button1Data.timerCurrent = ((t.min*60)+(t.sec));
+            Serial.println("The time is...");
             Serial.println (button1Data.timerCurrent);
+            Serial.println("seconds");
+
             button1Data.buttonPressed = true; 
             timeTriggered = 1;   
           }
       }     
   }
+    if ( button1Data.clean > 2){
+             button1Data.clean = 0;
+            Serial.println(".................................................................The target time is...");
+            Serial.println (button1Data.timerCurrent);
+            Serial.println("seconds");
+                        Serial.println("The current time is...");
+            Serial.println (currentSeconds);
+            Serial.println("seconds");
+            }
   if ((currentSeconds >=(button1Data.timerCurrent+10)) && (button1Data.buttonPressed == true) && (button1Data.LED1counter<1)){
     
     //timerCurrent = currentSeconds;
@@ -105,21 +119,14 @@ void loop() {
       }
      if ((currentSeconds >=(button1Data.timerCurrent+20)) && (button1Data.buttonPressed == true) && (button1Data.LED1counter<2)){
     
-         button1Data.clean++;
+         button1Data.clean =0;
         Serial.println("Auto-changing");
         Serial.println( button1Data.clean);
         button1Data.LED1counter++;
+        button1Data.LED1counter = 0;
+        button1Data.buttonPressed = false;
       }
-      if ((currentSeconds >=(button1Data.timerCurrent+30)) && (button1Data.buttonPressed == true) && (button1Data.LED1counter<3)){
-  
-  //button1Data.timerCurrent = currentSeconds;
-  
-       button1Data.clean = 0;
-      Serial.println("Auto-changing");
-      Serial.println( button1Data.clean);
-      button1Data.LED1counter = 0;
-      button1Data.buttonPressed = false;
-     }
+
   switch ( button1Data.clean){
     case 0:
         FastLED.clear();
