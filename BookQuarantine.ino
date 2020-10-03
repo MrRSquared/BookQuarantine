@@ -24,6 +24,7 @@ int button1MemoryAddress = 0; //Where we store the struct
 //Some debounce logic from RandomNerdTutorials
 int buttonState;
 int lastButtonState = LOW;
+//test
 // the following variables are long's because the time, measured in miliseconds,
 // will quickly become a bigger number than can be stored in an int.
 long lastDebounceTime = 0;  // the last time the output pin was toggled
