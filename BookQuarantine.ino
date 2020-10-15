@@ -6,12 +6,19 @@
 #define DATA_PIN 10
 #define brightness 5
 
+class ShelfLight
+{
+  
 
+};
 struct buttonData{
   int clean = 0; //clean variable add to struct. This is the how clean is it variable. 
   bool buttonPressed = false; //if the button has been pressed. This triggers the timer. Add to Struct.
-  int timerCurrent= 0; //The time when the button is Pressed add to struct  
-  bool LED1counter = 0;
+  int timerCurrent= 0; //The time when the button is Pressed add to struct 
+  //the timer needs to ultimately be split in two. 
+  //day + hour + min + sec (or just Hour + min) 
+  int LED1counter = 0;
+
 };
 typedef struct buttonData ButtonData;
 ButtonData button1Data;
@@ -23,7 +30,7 @@ int button = 3; //button pin
 
 int button1MemoryAddress = 0; //Where we store the struct
 //Some debounce logic from RandomNerdTutorials
-int buttonState;
+int buttonState = false;
 int lastButtonState = LOW;
 //test
 // the following variables are long's because the time, measured in miliseconds,
@@ -35,6 +42,13 @@ struct ts t;
 //Initialize all LEDs
 CRGB leds[NUM_LEDS];
 int timeTriggered = 7;
+
+/*
+* Function prototypes
+*/
+void checkLEDState();
+boolean buttonDebouncer();
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -79,7 +93,7 @@ void loop() {
       // if the button state has changed:
       lastButtonState = button1Value;
 
-        if (buttonState == LOW){
+        if (button1Value == LOW){
           button1Data.clean++;
           //delay(500);
           
@@ -95,19 +109,13 @@ void loop() {
             Serial.println("seconds");
 
             button1Data.buttonPressed = true; 
-            timeTriggered = 1;   
+            //timeTriggered = 1;   
           }
-      }     
+      }
   }
-    if ( button1Data.clean > 2){
-             button1Data.clean = 0;
-            Serial.println(".................................................................The target time is...");
-            Serial.println (button1Data.timerCurrent);
-            Serial.println("seconds");
-                        Serial.println("The current time is...");
-            Serial.println (currentSeconds);
-            Serial.println("seconds");
-            }
+  
+  
+
   if ((currentSeconds >=(button1Data.timerCurrent+10)) && (button1Data.buttonPressed == true) && (button1Data.LED1counter<1)){
     
     //timerCurrent = currentSeconds;
@@ -154,8 +162,8 @@ void loop() {
      FastLED.show();
         break;
   }
-}
 
+}
 
 void checkLEDState(){
   Serial.println("LED status after restart: ");
@@ -165,4 +173,30 @@ void checkLEDState(){
   Serial.println("The first LED status is " );
   Serial.println ( button1Data.clean);
   Serial.println(" I think.");
+}
+
+boolean buttonDebouncer(){
+  int button1Value = digitalRead(button);
+  //Serial.println(lastButtonState);
+  //build in the debouncer...
+  if( button1Value != lastButtonState) {
+    // reset the debouncing timer
+    //lastButtonState = button1Value;
+    Serial.println(lastButtonState);
+    
+    Serial.println(millis()-lastDebounceTime);
+  
+    if((millis() - lastDebounceTime) > debounceDelay) {
+      // whatever the reading is currently, it's been there for longer
+      // than the debounce delay, so take it as the actual current state:
+      //lastDebounceTime = 0;
+      
+      lastDebounceTime = millis();
+  
+      // if the button state has changed:
+      lastButtonState = button1Value;
+      return button1Value;
+      }  
+      
+  }   
 }
